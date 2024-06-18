@@ -1,0 +1,63 @@
+---
+execute:
+  echo: false
+  message: false
+---
+
+```{r}
+#| message: false
+library(tidycensus)
+library(tidyverse)
+```
+
+```{r}
+nc_demographics <- get_acs(
+  geography = "state",
+  variables = c(
+    total_population = "B01003_001",
+    median_age = "B01002_001",
+    median_income = "B19013_001",
+    total_white = "B02001_002",
+    total_black = "B02001_003",
+    total_asian = "B02001_005",
+    total_hispanic = "B03001_003"
+  ),
+  state = "NC",
+  survey = "acs5",
+  year = 2019
+)
+```
+
+```{r}
+nc_demographics_plot <- nc_demographics %>%
+  select(variable, estimate) %>%
+  mutate(variable = case_when(
+    variable == "total_population" ~ "Total Population",
+    variable == "median_age" ~ "Median Age",
+    variable == "median_income" ~ "Median Income",
+    variable == "total_white" ~ "White Population",
+    variable == "total_black" ~ "Black Population",
+    variable == "total_asian" ~ "Asian Population",
+    variable == "total_hispanic" ~ "Hispanic Population",
+    TRUE ~ as.character(variable)
+  ))
+```
+
+
+```{r}
+# Create a bar plot
+ggplot(nc_demographics, aes(x = variable, y = estimate)) +
+  geom_bar(stat = "identity", fill = "skyblue") +
+  labs(
+    title = "Demographic Characteristics of North Carolina (2019)",
+    x = "Demographic Category",
+    y = "Estimate",
+    caption = "Data Source: American Community Survey (ACS) 2019"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+
+
